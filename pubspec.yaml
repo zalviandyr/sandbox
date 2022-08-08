@@ -1,0 +1,6 @@
+name: sandbox
+environment:
+  sdk: ">=2.10.0 <3.0.0"
+dependencies:
+  equatable: ^2.0.3
+  intl: ^0.17.0

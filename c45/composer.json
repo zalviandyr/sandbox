@@ -1,0 +1,18 @@
+{
+    "name": "zalvyra/c45",
+    "autoload": {
+        "psr-4": {
+            "Zalvyra\\C45\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "zalviandyr",
+            "email": "zukronalviandy@gmail.com"
+        }
+    ],
+    "require": {
+        "juliardi/data-reader": "^1.1",
+        "juliardi/c45": "^0.1.0"
+    }
+}

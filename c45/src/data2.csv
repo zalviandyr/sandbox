@@ -1,0 +1,14 @@
+﻿"alat_transportasi", "pendidikan_ayah", "pekerjaan_ayah", "pendidikan_ibu", "pekerjaan_ibu", "penghasilan_ortu", "keterangan"
+sepeda, sma, wiraswasta, sma, tidak_bekerja, menengah, tidak_disiplin
+jalan_kaki, sd, petani, sd, tidak_bekerja, sedang, disiplin
+sepeda_motor, sd, petani, sd, tidak_bekerja, tinggi, tidak_disiplin
+jalan_kaki, sd, petani, sd, petani, sedang, tidak_disiplin
+jalan_kaki, sma, meninggal, sma, tidak_bekerja, tidak_berpenghasilan, disiplin
+jalan_kaki, sd, petani, smp, petani, tidak_berpenghasilan, disiplin
+sepeda_motor, sma, wiraswasta, sma, pns, sedang, disiplin
+sepeda_motor, sd, petani, smp, tidak_bekerja, sedang, tidak_disiplin
+sepeda, sd, petani, sd, tidak_bekerja, rendah, tidak_disiplin
+sepeda_motor, sma, meninggal, sma, petani, rendah, tidak_disiplin
+jalan_kaki, smp, petani, smp, petani, rendah, disiplin
+jalan_kaki, smp, petani, smp, petani, tinggi, disiplin
+sepeda_motor, smp, petani, sd, petani, menengah, tidak_disiplin

@@ -1,0 +1,15 @@
+"outlook", "windy", "humidity", "gas", "play"
+sunny, false, high, menengah, no
+sunny, true, high, sedang, no
+sunny, false, high, tinggi, no
+sunny, false, medium, sedang, yes
+sunny, true, medium, tidak, yes
+overcast, false, medium, tidak, yes
+overcast, true, medium, sedang, yes
+overcast, true, high, sedang, yes
+overcast, false, medium, rendah, yes
+rain, false, high, rendah, yes
+rain, false, medium, rendah, yes
+rain, true, medium, tinggi, no
+rain, false, medium, menengah, yes
+rain, true, medium, tinggi, no
