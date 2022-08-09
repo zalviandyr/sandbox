@@ -1,6 +1,7 @@
 <?php
 
 require_once './data.php';
+require_once './test_data.php';
 
 $labels = ['alat_transportasi', 'pendidikan_ayah', 'pekerjaan_ayah', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ortu'];
 
@@ -80,82 +81,95 @@ foreach ($result as &$item) {
 // clear pointer
 unset($item);
 
-// test data
-$testData = [
-    'test' => [
-        [
-            'label' => 'alat_transportasi',
-            'sub_label' => 'Jalan Kaki',
+$testData = array_map(function ($elm) use($labels) {
+    $data = [];
+
+    foreach ($labels as $label) {
+        $data[] = [
+            'label' => $label,
+            'sub_label' => $elm[$label],
             'disiplin' => 0,
             'tidak_disiplin' => 0,
-        ],
-        [
-            'label' => 'pendidikan_ayah',
-            'sub_label' => 'SD / sederajat',
-            'disiplin' => 0,
-            'tidak_disiplin' => 0,
-        ],
-        [
-            'label' => 'pekerjaan_ayah',
-            'sub_label' => 'Petani',
-            'disiplin' => 0,
-            'tidak_disiplin' => 0,
-        ],
-        [
-            'label' => 'pendidikan_ibu',
-            'sub_label' => 'SD / sederajat',
-            'disiplin' => 0,
-            'tidak_disiplin' => 0,
-        ],
-        [
-            'label' => 'pekerjaan_ibu',
-            'sub_label' => 'Petani',
-            'disiplin' => 0,
-            'tidak_disiplin' => 0,
-        ],
-        [
-            'label' => 'penghasilan_ortu',
-            'sub_label' => 'Rp. 500,000 - Rp. 999,999',
-            'disiplin' => 0,
-            'tidak_disiplin' => 0,
-        ],
-    ],
-    'total_disiplin' => 0,
-    'total_tidak_disiplin' => 0,
+        ];
+    }
+
+    return [
+        'nama' => $elm['nama'],
+        'actual' => $elm['keterangan'],
+        'predict' => '',
+        'total_disiplin' => 0,
+        'total_tidak_disiplin' => 0,
+        'data' => $data,
+    ];
+}, $data2);
+
+$confusionMatrix = [
+    // predict x actual
+    'disiplin_x_disiplin' => 0,
+    'disiplin_x_tidak_disiplin' => 0,
+    'tidak_disiplin_x_tidak_disiplin' => 0,
+    'tidak_disiplin_x_disiplin' => 0,
+    'recall' => 0,
+    'precision' => 0,
+    'akurasi' => 0,
 ];
 
-foreach ($testData['test'] as &$item) {
+foreach ($testData as &$item) {
     // bandingkan berdasarkan label
     foreach ($result as $resultItem) {
-        if ($resultItem['label'] === $item['label']) {
-            // bandingkan berdasarkan sub label
-            foreach ($resultItem['sub_label'] as $subLabel) {
-                if ($subLabel['name'] === $item['sub_label']) {
-                    $item['disiplin'] = $subLabel['p_disiplin'];
-                    $item['tidak_disiplin'] = $subLabel['p_tidak_disiplin'];
-                    break;
+        foreach ($item['data'] as &$dataItem) {
+            if ($resultItem['label'] === $dataItem['label']) {
+                // bandingkan berdasarkan sub label
+                foreach ($resultItem['sub_label'] as $subLabel) {
+                    if ($subLabel['name'] === $dataItem['sub_label']) {
+                        $dataItem['disiplin'] = $subLabel['p_disiplin'];
+                        $dataItem['tidak_disiplin'] = $subLabel['p_tidak_disiplin'];
+                        break;
+                    }
                 }
+                break;
             }
-            break;
         }
     }
+
+    $disiplinArr = array_column($item['data'], 'disiplin');
+    $totalDisiplin = array_reduce($disiplinArr, function ($a, $b) {
+        return $a * $b;
+    }, 1);
+    $tidakDisiplinArr = array_column($item['data'], 'tidak_disiplin');
+    $totalTidakDisiplin = array_reduce($tidakDisiplinArr, function ($a, $b) {
+        return $a * $b;
+    }, 1);
+    $item['total_disiplin'] = $totalDisiplin * $calcKeterangan['nilai_disiplin'];
+    $item['total_tidak_disiplin'] = $totalTidakDisiplin * $calcKeterangan['nilai_tidak_disiplin'];
+
+    // prediksi
+    $item['predict'] = $item['total_disiplin'] > $item['total_tidak_disiplin'] ? 'Disiplin' : 'Tidak Disiplin';
+
+    // insert
+    if ($item['predict'] === 'Disiplin' && $item['actual'] === 'Disiplin') {
+        $confusionMatrix['disiplin_x_disiplin'] += 1;
+    } else if ($item['predict'] === 'Disiplin' && $item['actual'] === 'Tidak Disiplin') {
+        $confusionMatrix['disiplin_x_tidak_disiplin'] += 1;
+    } else if ($item['predict'] === 'Tidak Disiplin' && $item['actual'] === 'Tidak Disiplin') {
+        $confusionMatrix['tidak_disiplin_x_tidak_disiplin'] += 1;
+    } else if ($item['predict'] === 'Tidak Disiplin' && $item['actual'] === 'Disiplin') {
+        $confusionMatrix['tidak_disiplin_x_disiplin'] += 1;
+    }
 }
-unset($item);
 
-$disiplinArr = array_column($testData['test'], 'disiplin');
-$totalDisiplin = array_reduce($disiplinArr, function ($a, $b) {
-    return $a * $b;
-}, 1);
-$tidakDisiplinArr = array_column($testData['test'], 'tidak_disiplin');
-$totalTidakDisiplin = array_reduce($tidakDisiplinArr, function ($a, $b) {
-    return $a * $b;
-}, 1);
-$testData['total_disiplin'] = $totalDisiplin;
-$testData['total_tidak_disiplin'] = $totalTidakDisiplin;
-$testData['nilai_total_disiplin'] = $totalDisiplin * $calcKeterangan['nilai_disiplin'];
-$testData['nilai_total_tidak_disiplin'] = $totalTidakDisiplin * $calcKeterangan['nilai_tidak_disiplin'];
+// akurasi
+$akurasi = ($confusionMatrix['disiplin_x_disiplin'] + $confusionMatrix['tidak_disiplin_x_tidak_disiplin']) / array_sum(array_values($confusionMatrix));
+$confusionMatrix['akurasi'] = $akurasi;
 
-// echo json_encode($result);
-echo json_encode($testData);
-// echo json_encode($disiplinArr);
+// recall
+$recall = $confusionMatrix['disiplin_x_disiplin'] / ($confusionMatrix['disiplin_x_disiplin'] + $confusionMatrix['tidak_disiplin_x_disiplin']);
+$confusionMatrix['recall'] = $recall;
+
+// precision
+$precision = $confusionMatrix['disiplin_x_disiplin'] / ($confusionMatrix['disiplin_x_disiplin'] + $confusionMatrix['disiplin_x_tidak_disiplin']);
+$confusionMatrix['precision'] = $precision;
+
+// echo json_encode($testData);
+echo json_encode($confusionMatrix);
 die();

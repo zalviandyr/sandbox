@@ -34,7 +34,7 @@ $mp6 = [
 
 $mp7 = [
     'Disiplin', //0
-    'Tidak Disipilin', //1
+    'Tidak Disiplin', //1
 ];
 
 $data = [];
